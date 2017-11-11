@@ -7,7 +7,7 @@ from diffpy.srfit.pdf import PDFContribution
 from diffpy.srfit.fitbase import FitRecipe
 from diffpy.structure import Lattice
 
-class PDFRecipeBuilder:
+class PDFRecipeFactory:
 
     _config_presets = {
         'rmin' : 1.0,
@@ -109,7 +109,7 @@ class PDFRecipeBuilder:
         recipe.addVar(p, value=v, tag='experiment')
         return recipe
 
-# end of class PDFRecipeBuilder
+# end of class PDFRecipeFactory
 
 
 def _dummyAtomWithBiso(crystal, biso):
