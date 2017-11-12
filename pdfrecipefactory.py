@@ -56,6 +56,7 @@ class PDFRecipeFactory:
             cpdf.setCalculationRange(dx=numpy.pi / m['qmax'])
         # create FitRecipe
         recipe = FitRecipe()
+        recipe.clearFitHooks()
         recipe.addContribution(cpdf)
         recipe.addVar(cpdf.scale)
         # get symmetry allowed structure parameters
