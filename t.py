@@ -1,7 +1,6 @@
 from diffpy.srfit.fitbase import FitRecipe
 from diffpy.srfit.pdf import PDFContribution
 from pyobjcryst import loadCrystal
-from diffpy.structure import loadStructure
 
 config = {
     'rmin' : 1,
@@ -10,7 +9,7 @@ config = {
     'delta2_default' : 2.0,
 }
 
-crst = loadCrystal('BaTiO3.cif')
+crst = loadCrystal('BaTiO3-Pm3m.cif')
 
 cpdf = PDFContribution('cpdf')
 cpdf.loadData('BaTiO3.gr')
