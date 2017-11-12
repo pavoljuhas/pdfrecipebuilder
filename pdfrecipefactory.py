@@ -5,7 +5,8 @@ import numpy
 from pyobjcryst.crystal import Crystal
 from diffpy.srfit.pdf import PDFContribution
 from diffpy.srfit.fitbase import FitRecipe
-from diffpy.structure import Lattice
+
+# ----------------------------------------------------------------------------
 
 class PDFRecipeFactory:
 
@@ -40,6 +41,9 @@ class PDFRecipeFactory:
 
 
     def make(self, crystal, r, g, dg=None, meta=None):
+        if not isinstance(crystal, Crystal):
+            emsg = "crystal must be of the pyobjcryst.Crystal type."
+            raise TypeError(emsg)
         cpdf = PDFContribution('cpdf')
         cpdf.profile.setObservedProfile(r, g, dg)
         m = {} if meta is None else dict(meta)
@@ -82,7 +86,7 @@ class PDFRecipeFactory:
                 pbiso = psite.Biso
                 n = isosymbol + '_{}'.format(idx)
                 v = pbiso.value or fbbiso
-                # avoid duplicate constrain
+                # avoid applying duplicate constrain to pbiso
                 if recipe.get(n) is None:
                     recipe.addVar(pbiso, name=n, value=v, tags=tags)
                 continue
@@ -111,6 +115,7 @@ class PDFRecipeFactory:
 
 # end of class PDFRecipeFactory
 
+# Local Routines -------------------------------------------------------------
 
 def _dummyAtomWithBiso(crystal, biso):
     from numpy import degrees
