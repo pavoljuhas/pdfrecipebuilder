@@ -17,7 +17,10 @@ class TestPDFRecipeFactory(unittest.TestCase):
 
     def setUp(self):
         self.factory = PDFRecipeFactory()
-        self.cifbto = _datafile('BaTiO3-Pm3m.cif')
+        # cubic
+        self.cifbtoc = _datafile('BaTiO3-Pm3m.cif')
+        # tetrahedral
+        self.cifbtot = _datafile('BaTiO3-P4mm.cif')
         data = loadData(_datafile('BaTiO3.gr'))
         self.r, self.g = data.T
         return
@@ -35,10 +38,10 @@ class TestPDFRecipeFactory(unittest.TestCase):
         return
 
 
-    def test_make_std(self):
-        """check PDFRecipeFactory.make() in standard setup.
+    def test_bto_cubic(self):
+        """check standard factory configuration on cubic BaTiO3.
         """
-        crst = loadCrystal(self.cifbto)
+        crst = loadCrystal(self.cifbtoc)
         meta = dict(qmax=26, stype='N')
         recipe = self.factory.make(crst, self.r, self.g, meta=meta)
         self.assertEqual(1, recipe.cpdf.r.value[0])
@@ -52,17 +55,39 @@ class TestPDFRecipeFactory(unittest.TestCase):
         self.assertEqual(4, len(bnames))
         self.assertEqual(2, len([n for n in bnames if n.startswith('Biso')]))
         # test type checking
-        stru = loadStructure(self.cifbto)
+        stru = loadStructure(self.cifbtoc)
         self.assertRaises(TypeError, self.factory.make,
                           stru, self.r, self.g, meta)
         return
 
 
-    def test_make_biso_fallback(self):
+    def test_bto_tetrahedral(self):
+        """check standard factory configuration on tetrahedral BaTiO3.
+        """
+        crst = loadCrystal(self.cifbtot)
+        meta = dict(qmax=26)
+        recipe = self.factory.make(crst, self.r, self.g, meta=meta)
+        # count cell-parameter variables
+        recipe.fix('all')
+        recipe.free('lattice')
+        self.assertEqual(['a', 'c'], recipe.names)
+        # count position-related variables
+        recipe.fix('all')
+        recipe.free('positions')
+        self.assertEqual(4, len(recipe.names))
+        self.assertTrue(all(n.startswith('z') for n in recipe.names))
+        # count ADP-related variables
+        recipe.fix('all')
+        recipe.free('adps')
+        self.assertEqual(9, len(recipe.names))
+        return
+
+
+    def test_biso_fallback(self):
         """check if Biso fallback in PDFRecipeFactory is applied.
         """
         self.factory.fbbiso = 0.37
-        crst = loadCrystal(self.cifbto)
+        crst = loadCrystal(self.cifbtoc)
         # zero all B values in the model
         spreg = crst.GetScatteringPowerRegistry()
         for i in range(spreg.GetNb()):
@@ -79,10 +104,10 @@ class TestPDFRecipeFactory(unittest.TestCase):
         return
 
 
-    def test_make_isotropy(self):
+    def test_isotropy(self):
         """check PDFRecipeFactory.make() with `isotropy` option.
         """
-        crst = loadCrystal(self.cifbto)
+        crst = loadCrystal(self.cifbtoc)
         self.factory.isotropy = True
         recipe = self.factory.make(crst, self.r, self.g)
         bnames = [n for n in recipe.names if n.startswith('B')]
@@ -92,10 +117,10 @@ class TestPDFRecipeFactory(unittest.TestCase):
         return
 
 
-    def test_make_nyquist(self):
+    def test_nyquist(self):
         """check PDFRecipeFactory.make() with `nyquist` option.
         """
-        crst = loadCrystal(self.cifbto)
+        crst = loadCrystal(self.cifbtoc)
         self.factory.nyquist = True
         self.assertRaises(Exception, self.factory.make,
                           crst, self.r, self.g)
