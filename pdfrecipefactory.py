@@ -9,7 +9,49 @@ from diffpy.srfit.fitbase import FitRecipe
 # ----------------------------------------------------------------------------
 
 class PDFRecipeFactory:
+    """
+    Factory that makes srfit recipe from CIF structure and observed PDF.
 
+    The CIF structure is passed as a pyobjcryst.Crystal object.
+
+    Attributes
+    ----------
+    rmin : float
+        The lower r-bound for the fitted PDF range.
+    rmax : float
+        The upper r-bound for the fitted PDF range.
+    isotropy : bool
+        Flag for using isotropic displacement parameters at all sites
+        even when the space group allows for anisotropic displacement.
+        The default is ``False``.
+    nyquist : bool
+        Flag for fitting PDF data re-sampled to Nyquist r-spacing.
+        When set the ``qmax`` value must be passed in the `make`
+        method `meta` argument.  The default is False.
+    fbdelta2 : float
+        Fallback value for the *delta2* sharpening factor.
+    fbbiso : float
+        Fallback value for the site isotropic displacement parameters
+        Biso when missing or zero in the CIF structure.
+    fbqdamp : float
+        Fallback value for the q-resolution damping factor *qdamp*.
+    fbqbroad : float
+        Fallback value for the resolution-related peak broadening.
+
+    Note
+    ----
+    The initial `delta2`, `qdamp`, `qbroad` variables can be set via
+    the `meta` argument of the `make` method.  Otherwise the recipe
+    starts with their fallback values.
+
+    Parameters
+    ----------
+    kw : keywords
+        The keyword arguments to set the factory configuration.
+        These can be the instance attributes listed above.
+    """
+
+    rmin = 1
     _config_presets = {
         'rmin' : 1.0,
         'rmax' : 20.0,
@@ -30,6 +72,13 @@ class PDFRecipeFactory:
 
 
     def update(self, **kw):
+        """
+        Parameters
+        ----------
+        kw : keywords
+            The keyword arguments to update the factory configuration.
+            These can be the attributes listed in the class docstring.
+        """
         unknowns = tuple(n for n in kw if not n in self._config_presets)
         if unknowns:
             emsg = ("unsupported keyword argument(s)" +
@@ -41,6 +90,34 @@ class PDFRecipeFactory:
 
 
     def make(self, crystal, r, g, dg=None, meta=None):
+        """
+        Construct new srfit recipe from CIF structure and PDF data
+
+        Parameters
+        ----------
+        crystal : pyobjcryst.Crystal
+            The CIF structure to be fitted to the PDF data in-place.
+        r : array_like
+            The r-grid of the fitted PDF dataset in Angstroms.
+        g : array_like
+            The fitted PDF values per each `r` point.
+        dg : array_like, optional
+            The estimated standard deviations at each of `g` values.
+            When unspecified, *dg* is assumed 1 leading to underestimated
+            standard errors of the refined variables.
+        meta : dict, optional
+            A dictionary of extra metadata to be used when constructing
+            `PDFContribution` in the srfit recipe.  The common recognized
+            keys are ``stype`` for radiation type ("X" or "N"), ``qmax``
+            for the Q-range used in the experiment, ``delta1``, ``delta2``,
+            ``qbroad`` for peak sharpening and broadening factors and
+            ``qdamp`` for the Q-resolution related signal dampening.
+
+        Returns
+        -------
+        recipe : FitRecipe
+            The new FitRecipe for in-place fitting of `crystal` to PDF data.
+        """
         if not isinstance(crystal, Crystal):
             emsg = "crystal must be of the pyobjcryst.Crystal type."
             raise TypeError(emsg)
