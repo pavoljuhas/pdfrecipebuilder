@@ -19,7 +19,7 @@ class TestPDFRecipeFactory(unittest.TestCase):
         self.factory = PDFRecipeFactory()
         # cubic
         self.cifbtoc = _datafile('BaTiO3-Pm3m.cif')
-        # tetrahedral
+        # tetragonal
         self.cifbtot = _datafile('BaTiO3-P4mm.cif')
         data = loadData(_datafile('BaTiO3.gr'))
         self.r, self.g = data.T
@@ -61,8 +61,8 @@ class TestPDFRecipeFactory(unittest.TestCase):
         return
 
 
-    def test_bto_tetrahedral(self):
-        """check standard factory configuration on tetrahedral BaTiO3.
+    def test_bto_tetragonal(self):
+        """check standard factory configuration on tetragonal BaTiO3.
         """
         crst = loadCrystal(self.cifbtot)
         meta = dict(qmax=26)
