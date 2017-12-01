@@ -122,7 +122,7 @@ class TestPDFRecipeFactory(unittest.TestCase):
         """
         crst = loadCrystal(self.cifbtoc)
         self.factory.nyquist = True
-        self.assertRaises(Exception, self.factory.make,
+        self.assertRaises(ValueError, self.factory.make,
                           crst, self.r, self.g)
         meta = dict(qmax=26)
         recnq = self.factory.make(crst, self.r, self.g, meta=meta)
