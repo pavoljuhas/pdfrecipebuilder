@@ -127,7 +127,9 @@ class PDFRecipeFactory:
         cpdf.addStructure('cif', crystal)
         cpdf.setCalculationRange(self.rmin, self.rmax)
         if self.nyquist:
-            assert 'qmax' in m, "Nyquist spacing requires 'qmax' metadata."
+            if not 'qmax' in m:
+                emsg = "Nyquist spacing requires 'qmax' metadata."
+                raise ValueError(emsg)
             assert m['qmax'] == cpdf.cif.getQmax()
             cpdf.setCalculationRange(dx=numpy.pi / m['qmax'])
         # create FitRecipe
