@@ -51,7 +51,6 @@ class PDFRecipeFactory:
         These can be the instance attributes listed above.
     """
 
-    rmin = 1
     _config_presets = {
         'rmin' : 1.0,
         'rmax' : 20.0,
